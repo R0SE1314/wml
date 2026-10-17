@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070c11">
+  <title>画的立体来自于它的阴影</title>
+  <style>
+    :root {
+      --bg: #070c11;
+      --bg-deep: #04080c;
+      --panel: rgba(190, 219, 235, .035);
+      --ink: #eef4f8;
+      --soft: #c0ced7;
+      --muted: #8fa4b1;
+      --quiet: #607582;
+      --line: rgba(192, 222, 238, .13);
+      --line-strong: rgba(216, 237, 248, .26);
+      --ice: #a8d4e9;
+      --mint: #a7d8ca;
+      --silver: #dce6ec;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 78% 15%, rgba(129, 185, 214, .11), transparent 29rem),
+        radial-gradient(circle at 8% 72%, rgba(91, 145, 174, .065), transparent 26rem),
+        linear-gradient(145deg, var(--bg-deep), var(--bg) 52%, #050a0f);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgba(205, 232, 245, .018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(205, 232, 245, .018) 1px, transparent 1px);
+      background-size: 88px 88px;
+      mask-image: linear-gradient(to bottom, black, transparent 82%);
+      content: "";
+      pointer-events: none;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ::selection {
+      background: rgba(168, 212, 233, .24);
+      color: #fff;
+    }
+
+    .nav {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      right: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      padding: 0 5vw;
+      border-bottom: 1px solid var(--line);
+      background: rgba(5, 10, 15, .72);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 31px;
+      height: 31px;
+      border: 1px solid rgba(224, 239, 247, .32);
+      border-radius: 50%;
+      background: radial-gradient(circle at 10px 8px, #fff, #dce5eb 14px, #687683 29px);
+      box-shadow: 0 0 24px rgba(191, 222, 240, .14);
+    }
+
+    .brand-mark::after {
+      position: absolute;
+      top: 4px;
+      left: 10px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #070c11;
+      content: "";
+    }
+
+    .brand b {
+      display: block;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: .16em;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 3px;
+      color: #536b79;
+      font-size: 6px;
+      letter-spacing: .24em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 23px;
+      color: #91a6b3;
+      font-size: 9px;
+    }
+
+    .nav-links a {
+      transition: color .2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
+      align-items: center;
+      gap: 3vw;
+      min-height: 100vh;
+      padding: 112px 6vw 76px;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .eyebrow {
+      margin: 0 0 26px;
+      color: var(--ice);
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: .31em;
+    }
+
+    .eyebrow::before {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin-right: 10px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 10px rgba(167, 216, 202, .8);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: clamp(49px, 6.5vw, 94px);
+      font-weight: 400;
+      line-height: 1.07;
+      color: #dbe5eb;
+      text-shadow: 0 0 55px rgba(188, 219, 237, .09);
+    }
+
+    h1 span {
+      display: block;
+      margin-top: 4px;
+      color: #fff;
+    }
+
+    .hero-quote {
+      max-width: 520px;
+      margin: 29px 0 0;
+      padding-left: 17px;
+      border-left: 1px solid rgba(168, 212, 233, .36);
+      color: #8198a6;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 13px;
+      line-height: 2;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 31px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 19px;
+      border: 1px solid rgba(214, 234, 245, .23);
+      border-radius: 999px;
+      background: rgba(205, 231, 244, .04);
+      color: #dce8ef;
+      font-size: 10px;
+      letter-spacing: .04em;
+      backdrop-filter: blur(12px);
+      transition: border-color .22s ease, background .22s ease, transform .22s ease;
+    }
+
+    .button:hover {
+      border-color: rgba(238, 248, 253, .52);
+      background: rgba(217, 237, 247, .09);
+      transform: translateY(-2px);
+    }
+
+    .button.secondary {
+      color: #91a7b4;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 30px;
+      max-width: 560px;
+      margin-top: 37px;
+      padding-top: 19px;
+      border-top: 1px solid var(--line);
+    }
+
+    .hero-meta span {
+      color: #a9bdc8;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 10px;
+    }
+
+    .hero-meta small {
+      display: block;
+      margin-bottom: 6px;
+      color: #4e6877;
+      font-family: "Microsoft YaHei", sans-serif;
+      font-size: 6px;
+      letter-spacing: .2em;
+    }
+
+    .hero-meta i {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 8px var(--mint);
+    }
+
+    .moon-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 570px;
+    }
+
+    .orbit {
+      position: absolute;
+      border: 1px solid rgba(174, 215, 236, .13);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .orbit.one {
+      width: min(42vw, 520px);
+      height: min(16vw, 195px);
+      transform: rotate(-17deg);
+    }
+
+    .orbit.two {
+      width: min(37vw, 460px);
+      height: min(14vw, 170px);
+      border-style: dashed;
+      border-color: rgba(218, 236, 246, .09);
+      transform: rotate(54deg);
+      animation: spin 68s linear infinite;
+    }
+
+    .moon {
+      position: relative;
+      width: clamp(285px, 34vw, 445px);
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 33% 27%, #fff, #edf2f5 13%, #c4ced6 43%, #8997a3 73%, #3c4a57 100%);
+      box-shadow:
+        inset -42px -36px 70px rgba(3, 8, 13, .78),
+        inset 28px 23px 48px rgba(255, 255, 255, .21),
+        0 0 80px rgba(207, 232, 245, .16),
+        0 0 180px rgba(112, 174, 205, .06);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .moon::before {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 31% 34%, transparent 0 17px, rgba(37, 47, 57, .13) 19px 27px, transparent 30px),
+        radial-gradient(circle at 72% 26%, rgba(255, 255, 255, .16) 0 8px, rgba(55, 66, 77, .2) 10px 22px, transparent 26px),
+        radial-gradient(circle at 73% 64%, rgba(36, 46, 56, .15) 0 27px, rgba(249, 251, 252, .1) 31px 36px, transparent 40px),
+        radial-gradient(circle at 39% 79%, rgba(36, 45, 54, .14) 0 15px, rgba(255, 255, 255, .08) 18px 22px, transparent 26px);
+      mix-blend-mode: multiply;
+      content: "";
+    }
+
+    .moon::after {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 50%;
+      background: linear-gradient(126deg, transparent 28%, rgba(255, 255, 255, .08) 50%, transparent 68%);
+      box-shadow:
+        inset 8px 8px 35px rgba(255, 255, 255, .1),
+        inset -22px -17px 38px rgba(3, 8, 13, .48);
+      content: "";
+    }
+
+    .moon-label {
+      position: absolute;
+      right: 0;
+      bottom: 15%;
+      padding: 8px 10px;
+      border: 1px solid rgba(190, 222, 239, .15);
+      background: rgba(4, 10, 16, .62);
+      color: #819aa9;
+      font-size: 6px;
+      letter-spacing: .18em;
+      backdrop-filter: blur(10px);
+    }
+
+    .moon-label::before {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 8px var(--mint);
+      content: "";
+    }
+
+    .axis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 15, 22, .42);
+    }
+
+    .axis div {
+      min-height: 118px;
+      padding: 26px 5vw;
+      border-right: 1px solid var(--line);
+    }
+
+    .axis div:last-child {
+      border-right: 0;
+    }
+
+    .axis small {
+      display: block;
+      margin-bottom: 11px;
+      color: #527186;
+      font-size: 6px;
+      letter-spacing: .2em;
+    }
+
+    .axis b {
+      display: block;
+      color: #c2d2dc;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .axis span {
+      display: block;
+      margin-top: 8px;
+      color: #6d8390;
+      font-size: 8px;
+    }
+
+    .section {
+      padding: 96px 6vw;
+      border-top: 1px solid rgba(190, 220, 236, .07);
+    }
+
+    .section-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 145px minmax(0, 1fr);
+      align-items: start;
+      gap: 5vw;
+      margin-bottom: 43px;
+    }
+
+    .section-index {
+      padding-top: 5px;
+      color: #526e7e;
+      font-size: 7px;
+      letter-spacing: .23em;
+    }
+
+    .section-index::before {
+      display: block;
+      width: 27px;
+      height: 1px;
+      margin-bottom: 13px;
+      background: var(--ice);
+      box-shadow: 0 0 8px rgba(168, 212, 233, .45);
+      content: "";
+    }
+
+    .section-title small {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--ice);
+      font-size: 7px;
+      letter-spacing: .25em;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: clamp(34px, 4.2vw, 57px);
+      font-weight: 400;
+      line-height: 1.25;
+    }
+
+    .section-title h2 i {
+      margin-right: 10px;
+      color: var(--ice);
+      font-style: normal;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 145px minmax(0, 1fr);
+      gap: 5vw;
+    }
+
+    .profile-seal {
+      position: sticky;
+      top: 98px;
+      align-self: start;
+      display: grid;
+      place-items: center;
+      width: 102px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(212, 235, 247, .16);
+      border-radius: 50%;
+      color: #bdd3df;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 22px;
+      letter-spacing: .12em;
+      backdrop-filter: blur(10px);
+    }
+
+    .profile-name {
+      margin: 0 0 20px;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: clamp(36px, 5vw, 61px);
+      font-weight: 400;
+    }
+
+    .profile-name span {
+      display: block;
+      margin-top: 8px;
+      color: #617b8b;
+      font-family: "Microsoft YaHei", sans-serif;
+      font-size: 7px;
+      letter-spacing: .22em;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 27px;
+    }
+
+    .chips span {
+      display: inline-flex;
+      align-items: center;
+      height: 29px;
+      padding: 0 12px;
+      border: 1px solid rgba(196, 224, 239, .14);
+      border-radius: 999px;
+      background: var(--panel);
+      color: #b8cbd6;
+      font-size: 9px;
+    }
+
+    .profile-lines {
+      border-top: 1px solid var(--line);
+    }
+
+    .profile-line {
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr);
+      gap: 20px;
+      padding: 17px 0;
+      border-bottom: 1px solid rgba(190, 220, 236, .09);
+    }
+
+    .profile-line small {
+      color: #526d7d;
+      font-size: 6px;
+      letter-spacing: .18em;
+    }
+
+    .profile-line p {
+      margin: 0;
+      color: #b1c3cd;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    .profile-line p strong {
+      color: #eef5f8;
+      font-weight: 400;
+    }
+
+    .notice-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(290px, .9fr);
+      gap: 5vw;
+    }
+
+    .warning-list {
+      border-top: 1px solid var(--line);
+    }
+
+    .warning {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 13px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(190, 220, 236, .09);
+    }
+
+    .warning span {
+      color: #526c7b;
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    .warning p {
+      margin: 0;
+      color: #aebfc9;
+      font-size: 12px;
+      line-height: 1.95;
+    }
+
+    .warning p b {
+      color: #e8f1f5;
+      font-weight: 500;
+    }
+
+    .tag-panel {
+      align-self: start;
+      padding: 25px;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(168, 212, 233, .035), rgba(5, 12, 19, .22));
+    }
+
+    .tag-panel > small {
+      display: block;
+      margin-bottom: 17px;
+      color: #526e7e;
+      font-size: 7px;
+      letter-spacing: .2em;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tags span {
+      padding: 7px 9px;
+      border: 1px solid rgba(184, 216, 232, .12);
+      border-radius: 999px;
+      color: #8298a5;
+      font-size: 8px;
+    }
+
+    .tags span.hot {
+      border-color: rgba(181, 219, 237, .27);
+      color: #d0e2eb;
+    }
+
+    .tag-panel p {
+      margin: 25px 0 0;
+      padding-top: 18px;
+      border-top: 1px solid rgba(190, 220, 236, .09);
+      color: #647d8b;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+
+    .docs-intro {
+      max-width: 640px;
+      margin: -9px 0 30px;
+      color: #7f96a4;
+      font-size: 11px;
+      line-height: 2;
+    }
+
+    .doc-list {
+      border-top: 1px solid var(--line);
+    }
+
+    .doc {
+      position: relative;
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr) minmax(250px, .75fr) 26px;
+      align-items: center;
+      gap: 22px;
+      min-height: 132px;
+      border-bottom: 1px solid rgba(190, 220, 236, .1);
+      transition: padding-left .25s ease, border-color .25s ease, background .25s ease;
+    }
+
+    .doc:hover {
+      padding-left: 11px;
+      border-bottom-color: rgba(216, 238, 248, .33);
+      background: linear-gradient(90deg, rgba(173, 216, 238, .055), transparent);
+    }
+
+    .doc-num {
+      color: #526f7f;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 13px;
+    }
+
+    .doc-main b {
+      display: block;
+      color: #dce8ee;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 28px;
+      font-weight: 400;
+    }
+
+    .doc-main small {
+      display: block;
+      margin-top: 7px;
+      color: #587180;
+      font-size: 7px;
+      letter-spacing: .16em;
+    }
+
+    .doc-desc {
+      color: #7e95a3;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 11px;
+      line-height: 1.85;
+    }
+
+    .doc-arrow {
+      color: var(--ice);
+      font-size: 19px;
+      transition: color .2s ease, transform .2s ease;
+    }
+
+    .doc:hover .doc-arrow {
+      color: #fff;
+      transform: translate(4px, -4px);
+    }
+
+    .closing {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 450px;
+      padding: 80px 20px;
+      overflow: hidden;
+      border-top: 1px solid rgba(190, 220, 236, .07);
+      text-align: center;
+    }
+
+    .closing::before {
+      position: absolute;
+      width: min(62vw, 690px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(184, 220, 240, .055);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .closing-copy {
+      position: relative;
+    }
+
+    .closing-copy small {
+      display: block;
+      margin-bottom: 21px;
+      color: #6895ac;
+      font-size: 7px;
+      letter-spacing: .3em;
+    }
+
+    .closing h2 {
+      margin: 0;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: clamp(36px, 5vw, 66px);
+      font-weight: 400;
+      letter-spacing: .08em;
+    }
+
+    .closing p {
+      margin: 21px 0 0;
+      color: #5d7786;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 24px 6vw 28px;
+      border-top: 1px solid rgba(190, 220, 236, .07);
+      color: #4f6877;
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    .footer a {
+      color: #7591a0;
+      border-bottom: 1px solid rgba(117, 153, 171, .25);
+    }
+
+    a:focus-visible {
+      outline: 1px solid var(--ice);
+      outline-offset: 5px;
+    }
+
+    @keyframes float {
+      50% {
+        transform: translateY(-11px);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(414deg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding: 104px 22px 38px;
+      }
+
+      .moon-stage {
+        min-height: 500px;
+      }
+
+      .orbit.one {
+        width: min(76vw, 520px);
+      }
+
+      .orbit.two {
+        width: min(70vw, 460px);
+      }
+
+      .moon {
+        width: min(69vw, 390px);
+      }
+
+      .section {
+        padding: 80px 22px;
+      }
+
+      .section-head,
+      .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .profile-seal {
+        display: none;
+      }
+
+      .notice-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .doc {
+        grid-template-columns: 45px minmax(0, 1fr) 24px;
+        gap: 13px;
+        min-height: 116px;
+      }
+
+      .doc-desc {
+        display: none;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: 10px;
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .nav {
+        height: 61px;
+        padding: 0 15px;
+      }
+
+      .brand small {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 91px;
+      }
+
+      h1 {
+        font-size: clamp(43px, 13.7vw, 63px);
+        line-height: 1.12;
+      }
+
+      .hero-meta {
+        gap: 15px;
+      }
+
+      .moon-stage {
+        min-height: 410px;
+      }
+
+      .moon {
+        width: min(77vw, 300px);
+      }
+
+      .orbit.one {
+        width: 91vw;
+        height: 31vw;
+      }
+
+      .orbit.two {
+        width: 82vw;
+        height: 27vw;
+      }
+
+      .moon-label {
+        right: 2%;
+        bottom: 9%;
+        font-size: 5px;
+      }
+
+      .axis {
+        grid-template-columns: 1fr;
+      }
+
+      .axis div {
+        min-height: 99px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(190, 220, 236, .07);
+      }
+
+      .axis div:last-child {
+        border-bottom: 0;
+      }
+
+      .section-title h2 {
+        font-size: 35px;
+      }
+
+      .profile-line {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .profile-line p {
+        font-size: 14px;
+      }
+
+      .tag-panel {
+        padding: 19px;
+      }
+
+      .doc {
+        grid-template-columns: 34px minmax(0, 1fr) 21px;
+        min-height: 102px;
+      }
+
+      .doc-main b {
+        font-size: 24px;
+      }
+
+      .closing h2 {
+        font-size: 35px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#top">
+      <i class="brand-mark" aria-hidden="true"></i>
+      <span>
+        <b>阴影与月光</b>
+        <small>LUNAR RELIEF ARCHIVE</small>
+      </span>
+    </a>
+    <nav class="nav-links" aria-label="页面导航">
+      <a href="#about">请了解我</a>
+      <a href="#notice">关于须知</a>
+      <a href="#documents">更多信息</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">LIGHT / SHADOW / MEMORY</p>
+        <h1>
+          画的立体
+          <span>来自于它的阴影。</span>
+        </h1>
+        <p class="hero-quote">
+          我们是梦境构成的泡影<br>
+          而短暂的一生终将沉入长眠
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#about">进入月面档案 ↓</a>
+          <a class="button secondary" href="#documents">查看三份文档 →</a>
+        </div>
+        <div class="hero-meta">
+          <span><small>ATMOSPHERE</small>雾霾蓝</span>
+          <span><small>RELIEF</small><i></i>明暗成形</span>
+          <span><small>ARCHIVE</small>静默阅览</span>
+        </div>
+      </div>
+
+      <div class="moon-stage" aria-hidden="true">
+        <i class="orbit one"></i>
+        <i class="orbit two"></i>
+        <div class="moon"></div>
+        <span class="moon-label">SHADOW DEPTH / STABLE</span>
+      </div>
+    </section>
+
+    <div class="axis" aria-label="页面主题">
+      <div>
+        <small>01 / LIGHT</small>
+        <b>光给出边缘</b>
+        <span>让轮廓被看见</span>
+      </div>
+      <div>
+        <small>02 / SHADOW</small>
+        <b>阴影交出体积</b>
+        <span>让平面拥有深度</span>
+      </div>
+      <div>
+        <small>03 / MEMORY</small>
+        <b>记忆留下形状</b>
+        <span>让相遇拥有回声</span>
+      </div>
+    </div>
+
+    <section class="section" id="about">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-index">01 / PROFILE</div>
+          <div class="section-title">
+            <small>ABOUT THE KEEPER</small>
+            <h2><i>//</i>请了解我</h2>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <aside class="profile-seal">雾蓝</aside>
+          <div>
+            <h3 class="profile-name">
+              雾霾蓝
+              <span>HAZE BLUE / DAYDREAMER</span>
+            </h3>
+
+            <div class="chips">
+              <span>女</span>
+              <span>19</span>
+              <span>白羊</span>
+              <span>INFP</span>
+            </div>
+
+            <div class="profile-lines">
+              <div class="profile-line">
+                <small>PREFERENCE</small>
+                <p>常点虐恋，无特殊说明默认为虐一</p>
+              </div>
+              <div class="profile-line">
+                <small>REVIEW</small>
+                <p>喜欢会给板评</p>
+              </div>
+              <div class="profile-line">
+                <small>REMINDER</small>
+                <p><strong>请不要把我想象得不幸福</strong></p>
+              </div>
+              <div class="profile-line">
+                <small>IDENTITY</small>
+                <p>本人le，三恋单默认卡女</p>
+              </div>
+              <div class="profile-line">
+                <small>MEMORY</small>
+                <p>单内可能会截图留作纪念，不会外传</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="notice">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-index">02 / NOTES</div>
+          <div class="section-title">
+            <small>BOUNDARIES AND PREFERENCES</small>
+            <h2><i>//</i>关于须知</h2>
+          </div>
+        </div>
+
+        <div class="notice-grid">
+          <div class="warning-list">
+            <div class="warning">
+              <span>01</span>
+              <p><b>三恋均雷</b></p>
+            </div>
+            <div class="warning">
+              <span>02</span>
+              <p>过度解读｜莫须有｜无厘头剖析｜莫名其妙的贬低｜逻辑混乱｜亲密称呼｜擦｜一直和我辩论｜一直顺着我话说一直夸我</p>
+            </div>
+            <div class="warning">
+              <span>03</span>
+              <p>轻度踩雷我可能会察觉不到，但重度踩雷我会考虑送单 / 客诉</p>
+            </div>
+            <div class="warning">
+              <span>04</span>
+              <p><b>病虚无喜，虐喜高恋救赎</b>（其实我什么风格都吃！不卡喜点）</p>
+            </div>
+            <div class="warning">
+              <span>05</span>
+              <p><b>本人为低代入</b>，有可能话少</p>
+            </div>
+            <div class="warning">
+              <span>06</span>
+              <p>名字可以成为了解彼此的一个契机，但请不要一直提及我名字的含义，也不要过度解读我的名字，更不要把我的名字当逗号使</p>
+            </div>
+          </div>
+
+          <aside class="tag-panel">
+            <small>THINGS TO AVOID / 雷点</small>
+            <div class="tags">
+              <span class="hot">过度解读</span>
+              <span class="hot">莫须有</span>
+              <span>无厘头剖析</span>
+              <span>莫名其妙的贬低</span>
+              <span>逻辑混乱</span>
+              <span>亲密称呼</span>
+              <span>擦</span>
+              <span>一直和我辩论</span>
+              <span>一直顺着我话说一直夸我</span>
+            </div>
+            <p>
+              边界不是距离。<br>
+              它只是让每一次靠近，都更清楚自己落在哪里。
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="documents">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-index">03 / DOCUMENTS</div>
+          <div class="section-title">
+            <small>THREE SEPARATE PAGES</small>
+            <h2><i>//</i>有关更多</h2>
+          </div>
+        </div>
+
+        <p class="docs-intro">
+          点击依次查看板评、陪评、礼赠
+        </p>
+
+        <div class="doc-list">
+          <a class="doc" href="https://www.kdocs.cn/l/cqTLZXR3G8JG" target="_blank" rel="noopener noreferrer">
+            <span class="doc-num">01</span>
+            <span class="doc-main">
+              <b>板评</b>
+              <small>BOARD REVIEW / EXTERNAL DOCUMENT</small>
+            </span>
+            <span class="doc-desc">把回声留在纸上，把未说完的光留给下一次相遇。</span>
+            <span class="doc-arrow">↗</span>
+          </a>
+
+          <a class="doc" href="https://www.kdocs.cn/l/cf7TGRjKl8YX" target="_blank" rel="noopener noreferrer">
+            <span class="doc-num">02</span>
+            <span class="doc-main">
+              <b>陪评</b>
+              <small>COMPANION REVIEW / EXTERNAL DOCUMENT</small>
+            </span>
+            <span class="doc-desc">并肩看过一段月色，文字便有了安静的温度。</span>
+            <span class="doc-arrow">↗</span>
+          </a>
+
+          <a class="doc" href="https://www.kdocs.cn/l/cvLDahx6l2Sz" target="_blank" rel="noopener noreferrer">
+            <span class="doc-num">03</span>
+            <span class="doc-main">
+              <b>礼赠</b>
+              <small>GIFT OF MEMORY / EXTERNAL DOCUMENT</small>
+            </span>
+            <span class="doc-desc">一份轻盈的纪念，像月光落在掌心，也像阴影记住形状。</span>
+            <span class="doc-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="closing-copy">
+        <small>END OF ARCHIVE / WITH GRATITUDE</small>
+        <h2>-- 感谢遇见 --</h2>
+        <p>
+          画的立体来自于它的阴影<br>
+          WE ARE BUBBLES MADE OF DREAMS
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>LUNAR RELIEF ARCHIVE / SILVER MOON EDITION</span>
+    <a href="https://www.kdocs.cn/l/cp2PFHxqxzk0" target="_blank" rel="noopener noreferrer">
+      正文来源 · 原始文档 ↗
+    </a>
+  </footer>
+</body>
+</html>
